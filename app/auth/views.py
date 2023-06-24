@@ -5,9 +5,11 @@ from flask_login import login_user, LoginManager, logout_user, login_required, c
 auth = Blueprint('blueprint_auth', __name__)
 
 from app.auth.models import User, db
+
 login_manager = LoginManager()
 
 from app import application
+
 login_manager.init_app(application)
 
 
@@ -20,7 +22,9 @@ def load_user(user_id):
 def register_user():
     """ Регистрация пользователя """
     data = request.get_json()
-    user = User.query.filter_by(email=data.get('email')).first()
+    email = data.get('email')
+    username = data.get('username')
+    user = User.query.filter((User.email == email) | (User.username == username)).first()
 
     if user:
         return {'message': "Пользователь уже существует!"}
@@ -52,14 +56,14 @@ class LoginUser(MethodView):
         if user_obj.email == email and user_obj.check_password(password):
             return self.login(user_obj)
         else:
-            return {'message': 'Логин или пароль введены неправильно!', 'status': 404}
+            return {'message': 'Логин или пароль введены неправильно!'}
 
     def login(self, obj):
         login_user(obj)
         return {'message': 'Пользователь авторизован!', 'status': 200}
 
 
-auth.add_url_rule('/login', view_func=LoginUser.as_view('user_auth'), methods=['POST'])
+auth.add_url_rule('/login', view_func=LoginUser.as_view('post'), methods=["POST"])
 
 
 @auth.route('/logout', methods=["GET", "POST"])
@@ -79,6 +83,3 @@ def check_user():
         "username": current_user.username,
         "email": current_user.email
     }
-
-
-
