@@ -1,15 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from flask.views import MethodView
 from flask_login import login_user, LoginManager, logout_user, login_required, current_user
 
 auth = Blueprint('blueprint_auth', __name__)
 
 from app.auth.models import User, db
-
 login_manager = LoginManager()
 
 from app import application
-
 login_manager.init_app(application)
 
 
@@ -37,6 +35,7 @@ def register_user():
 
 class LoginUser(MethodView):
     """ Авторизация пользователя """
+
     def post(self):
         data = request.get_json()
         user = User.query.filter_by(email=data.get('email')).first()
@@ -82,11 +81,4 @@ def check_user():
     }
 
 
-@auth.route('/print', methods=["GET"])
-@login_required
-def print_text():
-    """ Список всех пользователей """
-    users_list = User.query.all()
-    users_dict = [user.serialize() for user in users_list]
 
-    return jsonify(users_dict)
