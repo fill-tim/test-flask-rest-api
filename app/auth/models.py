@@ -1,16 +1,22 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 from app import db
 
+from app.friends.models import friendship
+from app.friends.serializers import FriendListSerializer
 
-class User(db.Model, UserMixin):
-    __table_name__ = 'user'
+
+class User(db.Model, FriendListSerializer):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, password):
+    friends = db.relationship("User", secondary=friendship, primaryjoin=id == friendship.c.user_id,
+                              secondaryjoin=id == friendship.c.friend_id)
+
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
         self.password = generate_password_hash(password)
 
     def __repr__(self):
@@ -23,8 +29,6 @@ class User(db.Model, UserMixin):
         return {
             "id": self.id,
             "username": self.username,
-            "email": self.email
+            "email": self.email,
+            "friends": self.friend_serialize(self.friends)
         }
-
-
-db.create_all()
