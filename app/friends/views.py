@@ -14,3 +14,4 @@ def print_text():
     friends_dict = [obj.serialize() for obj in user.friends]
 
     return jsonify(friends_dict)
+
