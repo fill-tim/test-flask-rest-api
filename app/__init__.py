@@ -12,8 +12,8 @@ application.app_context().push()
 
 from app.auth.views import auth as blueprint_auth
 from app.friends.views import friend as blueprint_friend
-from app.profile.views import profile
+from app.profile.views import profile as blueprint_profile
 
 application.register_blueprint(blueprint_auth)
-application.register_blueprint(profile)
+application.register_blueprint(blueprint_profile)
 application.register_blueprint(blueprint_friend)
